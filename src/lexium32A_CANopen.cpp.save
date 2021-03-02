@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2016, Thomas Keh
  * All rights reserved.
@@ -298,18 +299,19 @@ int main(int argc, char **argv) {
 	    if(reset_flag) {
     	        try
 	        {
-		    //Homing for re-initialize the steerwheel position
+		    std::cout << "RESET" << std::endl;
+
 		    device.set_entry("Homing speeds/Homing speed during search for switch", (uint32_t) 100);
 		    device.set_entry("Homing speeds/speed during search for zero", (uint32_t) 10);
 		    master.core.nmt.send_nmt_message(node_id, kaco::NMT::Command::start_node);
-		    std::this_thread::sleep_for(std::chrono::seconds(1));
+		    ..std::this_thread::sleep_for(std::chrono::seconds(1));
 		    std::vector<uint8_t> enable_power_init = {0x00,0x00};
 		    master.core.pdo.send(0x200+node_id,enable_power_init);
 		    std::vector<uint8_t> enable_power_rdy = {0x06,0x00};
 		    master.core.pdo.send(0x200+node_id,enable_power_rdy);
 		    std::vector<uint8_t> enable_power_run = {0x0F,0x00};
 		    master.core.pdo.send(0x200+node_id,enable_power_run);
-		    std::this_thread::sleep_for(std::chrono::seconds(1));
+		    std::this_thread::sleep_for(std::chrono::seconds(1));*/
 
 		    std::cout << "Starting the operating mode : Homing" << std::endl;
 		    device.set_entry("Modes of operation", (int8_t) 6);
@@ -332,29 +334,11 @@ int main(int argc, char **argv) {
 	            std::this_thread::sleep_for(std::chrono::seconds(2));
 
 		    std::cout << "Homing finish !" << std::endl;
+		    std::cout << "Running ..." << std::endl;
 	        }
     	        catch (const kaco::canopen_error& error) {
 		    std::cout << "Lexium Homing failed: " << error.what() << std::endl;
                 }
-
-		try
-		{
-		    std::cout << "Starting the operating mode : Profile Torque" << std::endl;
-		    device.set_entry("Modes of operation", (int8_t) 4);
-
-		    std::cout << "Check operating mode : Profile Torque ..." << std::endl;
-		    kaco::Value profile_torque_check((int8_t) 4);
-		    while(device.get_entry("Modes of operation display")!=profile_torque_check)
-		    {
-			std::cout << "Profile Torque not yet enabled... Waiting one more second. Press Ctrl+C abort." << std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-		    }
-		    std::cout << "Profile Torque enabled !" << std::endl;
-		    std::cout << "Running ..." << std::endl;
-		}
-		catch (const kaco::canopen_error& error) {
-		    std::cout << "Profile Torque failed: " << error.what() << std::endl;
-		}
 
 		reset_flag = 0;
 	    }
