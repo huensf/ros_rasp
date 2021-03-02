@@ -42,8 +42,8 @@
 #include "ros_rasp/Torque_msg.h"
 #include "ros_rasp/Pos_vit_msg.h"
 
-#include <math.h> 
-#include <algorithm> 
+#include <math.h>
+#include <algorithm>
 
 class Listener_torque
 {
@@ -59,7 +59,7 @@ class Listener_torque
    {
    //   ROS_INFO("torque : [%f]", msg.value);
       torque_rob = -msg.value;
-       chatter_pub.publish(msg_pos_vit);        
+       chatter_pub.publish(msg_pos_vit);
    }
 };
 
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Giving the device one second time to enable the power stage ..." << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    
+
     //Operating state : 6->Operation Enabled
 
     std::cout << "Starting the operating mode : Homing" << std::endl;
@@ -241,14 +241,13 @@ int main(int argc, char **argv) {
           std::this_thread::sleep_for(std::chrono::seconds(1)); 
 	}
     std::cout << "Profile Torque enabled !" << std::endl;
-    
-    
+
     } catch (const kaco::canopen_error& error) {
 		std::cout << "Set torque profil failed: " << error.what() << std::endl;
 	}
 
     std::cout << "Set Torque to 0 for security" << std::endl;
-    device.set_entry("Target torque",(int16_t) 0);     
+    device.set_entry("Target torque",(int16_t) 0);
 
    // ----------------------- //
    // While Loop for Robotran //
@@ -261,7 +260,7 @@ int main(int argc, char **argv) {
    uint16_t torque_init = device.get_entry("servo motor/_M_M_0").operator uint16_t();
 
    int16_t torque_can = 0;
-   
+
    Listener_torque lis_tor;
 
    lis_tor.chatter_pub = n.advertise<ros_rasp::Pos_vit_msg>("chatter_pos_vit",1);
@@ -279,31 +278,100 @@ int main(int argc, char **argv) {
     std::cout << "ROS publisher and suscriber set !" << std::endl;
      std::cout << "Running ..." << std::endl;
 
-   while(ros::ok()) //voir quand la boucle s'arrête 
+    int robotran_finish;
+    int reset_flag = 1;
+
+   while(ros::ok()) //voir quand la boucle s'arrête
     {
-        //get position with CAN
-        lis_tor.msg_pos_vit.pos_value = (double) (device.get_entry("Position actual value").operator int32_t())*2.0*M_PI/16384.0; 
-        //get velocity with CAN
-        lis_tor.msg_pos_vit.vit_value = (double) (device.get_entry("Velocity actual value").operator int32_t())*2.0*M_PI/60.0;
+	ros::param::get("robotran_finish", robotran_finish);
+	if(!robotran_finish)
+	{
+	    reset_flag = 1;
+            //get position and velocity with CAN
+            lis_tor.msg_pos_vit.pos_value = (double) (device.get_entry("Position actual value").operator int32_t())*2.0*M_PI/16384.0; 
+            lis_tor.msg_pos_vit.vit_value = (double) (device.get_entry("Velocity actual value").operator int32_t())*2.0*M_PI/60.0;
+	}
+	else if(robotran_finish)
+	{
+	    //reset
 
-        //acceleration ? 
+	    if(reset_flag) {
+    	        try
+	        {
+		    //Homing for re-initialize the steerwheel position
+		    device.set_entry("Homing speeds/Homing speed during search for switch", (uint32_t) 100);
+		    device.set_entry("Homing speeds/speed during search for zero", (uint32_t) 10);
+		    master.core.nmt.send_nmt_message(node_id, kaco::NMT::Command::start_node);
+		    std::this_thread::sleep_for(std::chrono::seconds(1));
+		    std::vector<uint8_t> enable_power_init = {0x00,0x00};
+		    master.core.pdo.send(0x200+node_id,enable_power_init);
+		    std::vector<uint8_t> enable_power_rdy = {0x06,0x00};
+		    master.core.pdo.send(0x200+node_id,enable_power_rdy);
+		    std::vector<uint8_t> enable_power_run = {0x0F,0x00};
+		    master.core.pdo.send(0x200+node_id,enable_power_run);
+		    std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        //publish position and velocity in callback function
-        //chatter_pub.publish(msg);
+		    std::cout << "Starting the operating mode : Homing" << std::endl;
+		    device.set_entry("Modes of operation", (int8_t) 6);
+
+		    std::cout << "Check operating mode : Homing ..." << std::endl;
+		    kaco::Value homing_check((int8_t) 6);
+		    while(device.get_entry("Modes of operation display")!=homing_check)
+		    {
+			std::cout << "Homing not yet enabled... Wainting one more second. Press Ctrl+C abort." << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		    }
+		    std::cout << "Homing enabled !" << std::endl;
+
+	            std::cout << "Set Homing mode to : Immediate origin" << std::endl;
+	            device.set_entry("Homing method", (int8_t) 35);
+
+	            std::cout << "Homing operation start" << std::endl;
+	            std::vector<uint8_t> homing_start = {0x1F,0x00};
+	            master.core.pdo.send(0x200+node_id,homing_start);
+	            std::this_thread::sleep_for(std::chrono::seconds(2));
+
+		    std::cout << "Homing finish !" << std::endl;
+	        }
+    	        catch (const kaco::canopen_error& error) {
+		    std::cout << "Lexium Homing failed: " << error.what() << std::endl;
+                }
+
+		try
+		{
+		    std::cout << "Starting the operating mode : Profile Torque" << std::endl;
+		    device.set_entry("Modes of operation", (int8_t) 4);
+
+		    std::cout << "Check operating mode : Profile Torque ..." << std::endl;
+		    kaco::Value profile_torque_check((int8_t) 4);
+		    while(device.get_entry("Modes of operation display")!=profile_torque_check)
+		    {
+			std::cout << "Profile Torque not yet enabled... Waiting one more second. Press Ctrl+C abort." << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		    }
+		    std::cout << "Profile Torque enabled !" << std::endl;
+		}
+		catch (const kaco::canopen_error& error) {
+		    std::cout << "Profile Torque failed: " << error.what() << std::endl;
+		}
+
+		std::cout << "Running ..." << std::endl;
+		reset_flag = 0;
+	    }
+
+	}
+
 
         //receive torque and publish position and velocity
-      //  lis_tor.torque_rob = 0; //security if Robotran is closed
-        ros::spinOnce();   
+        ros::spinOnce();
 
-        //set torque with CAN 
+        //set torque with CAN
         torque_can = (int16_t) std::min(300.0,(std::max(-300.0,(lis_tor.torque_rob*10000.0)/torque_init)));
-       //   printf("Torque CAN = %d percent \n", torque_can);  
         device.set_entry("Target torque",torque_can);
 
-     //   loop_rate.sleep();
-	}                 
-     
-    
+    }
+
+
    // ------------ //
    // Device Closing //
    // ------------ //

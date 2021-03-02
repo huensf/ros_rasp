@@ -9989,14 +9989,14 @@ PDOMapping= 1
 ParameterName=position actual value int
 ObjectType=0x7
 DataType=0x4
-AccessType=ro
+AccessType=rw
 PDOMapping= 1 
 
 [6064]
 ParameterName=Position actual value
 ObjectType=0x7
 DataType=0x4
-AccessType=ro
+AccessType=rw
 PDOMapping= 1 
 
 [6065]
@@ -10040,7 +10040,7 @@ PDOMapping= 1
 ParameterName=Velocity actual value
 ObjectType=0x7
 DataType=0x4
-AccessType=ro
+AccessType=rw
 PDOMapping= 1 
 
 [606D]
