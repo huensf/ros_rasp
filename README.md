@@ -26,16 +26,16 @@ The example here shows how to create an SSH communication between 2 devices runn
   * Go the parameters of the wired used. 
   
 
-<img src="https://git.immc.ucl.ac.be/tuerlinckxt/ros_rasp/-/raw/CAN-develop/img/ipfixe_1.png" width="400">
+<img src="https://git.immc.ucl.ac.be/huensf/ros_rasp/-/raw/master/img/ipfixe_1.png" width="500">
 
   * Select *Make it accessible to other devices*
   
 
-<img src="https://git.immc.ucl.ac.be/tuerlinckxt/ros_rasp/-/raw/CAN-develop/img/ipfixe_2.png" width="400">
+<img src="https://git.immc.ucl.ac.be/huensf/ros_rasp/-/raw/master/img/ipfixe_2.png" width="500">
 
   * Then in the IPv4 section, set the IP address to **192.168.100.1** (you can choose the value what you want but you need to keep it in mind) and set the netmask to **255.255.255.0** (this address must be the same for all the devices in the network).
 
-<img src="https://git.immc.ucl.ac.be/tuerlinckxt/ros_rasp/-/raw/CAN-develop/img/ipfixe_3.png" width="400"> 
+<img src="https://git.immc.ucl.ac.be/huensf/ros_rasp/-/raw/master/img/ipfixe_3.png" width="500"> 
 
 4) Create a fixe IP address for ethernet connection of the Raspberry.
    * You can edit the */etc/network/interfaces* file with : 
@@ -78,7 +78,7 @@ The example here shows how to create an SSH communication between 2 devices runn
    
 ## Global architecture
 
-<img src="https://git.immc.ucl.ac.be/tuerlinckxt/ros_rasp/-/raw/master/img/globalarchi.JPG" width="600">
+<img src="https://git.immc.ucl.ac.be/huensf/ros_rasp/-/raw/master/img/globalarchi.JPG" width="600">
 
 
 ## ROS across multiple machines
