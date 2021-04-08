@@ -119,6 +119,17 @@ For this example:
      Be careful that the versions of ROS for the master and the slave are different in this case, as precedently said.
      
  
+## Compilation and run instructions
+Now that the network and the ROS environnement is setup here is the compilation and run instructions :
+
+1) Follow [this tutorial](https://github.com/tuerlinckxt/ros_rob) for installing and compiling the *ros_rob* package on the computer (don't run it).
+2) Download this package in your catkin_ws/src folder in the Rasberry.
+3) Go to the catkin_ws folder et compile/build it with :`~/catkin_ws$ catkin_make`
+4) Run `$ roscore` on the master device (here the computer).
+5) (For this example:) On the Raspberry, run the *talker* node wich send the position and the velocity of the steerwheel to Robotran on the computer and run the *listener* node wich receive the torque of the steerwheel with `$ rosrun ros_rasp talker` and `$ rosrun ros_rasp listener`.
+6) (For this example:) On the PC, run the *exe_Car* node wich run the real-time simulation in Robotran, receive the position and velocity of the steerwheel from the *talker* node and publish the torque on a topic for the *listener* node. 
+7) (For this example:) The *exe_Car* node close automatically. Close the *listener* and *talker* node and *roscore* by pressing ctrl+c in each terminal.
+
 ## CAN communication 
 
 Now that you can send and receive data on another device (here a Raspberry) it could be usefull to use this data in order to actuate a servomotor for example. Most a servomotor and servovariator use CANopen bus to communicate with other device. This section will explain how to provide CAN capabilty to a Raspberry and provide an example of ROS node with the package KaCanOpen.
