@@ -1,5 +1,5 @@
 # ros_rasp
-This is a ROS package wich receive/publish data for Robotran project. Runing this package alone have no interest. The objectif here is to first run the ros_rob package (see tutorial and informations [here](https://github.com/tuerlinckxt/ros_rob)), this is a ROS package that allows you to run a Robotran project and publish/receive data on ROS topics. 
+This is a ROS package wich receive/publish data for Robotran project. Runing this package alone have no interest but can be used along with *ros_rob*. The objectif here is to first run the *ros_rob package* (see tutorial and informations [here](https://git.immc.ucl.ac.be/huensf/ros_rob)), this is a ROS package that allows you to run a Robotran project and publish/receive data on ROS topics. 
 
 Here specially is an example where you can drive a car with a steerwheel: the position and velocity of this latter are send on a ROS topic and the the torque in the steerwheel is received via another one. 
 
