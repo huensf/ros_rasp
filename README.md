@@ -122,7 +122,7 @@ For this example:
 ## Compilation and run instructions
 Now that the network and the ROS environnement is setup here is the compilation and run instructions :
 
-1) Follow [this tutorial](https://github.com/tuerlinckxt/ros_rob) for installing and compiling the *ros_rob* package on the computer (don't run it).
+1) Follow [this tutorial](https://git.immc.ucl.ac.be/huensf/ros_rob)) for installing and compiling the *ros_rob* package on the computer (don't run it).
 2) Download this package in your catkin_ws/src folder in the Rasberry.
 3) Go to the catkin_ws folder et compile/build it with :`~/catkin_ws$ catkin_make`
 4) Run `$ roscore` on the master device (here the computer).
